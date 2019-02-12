@@ -33,7 +33,7 @@ public class GoodsService  {
     public void reduceStock(GoodsVO goodsVO) {
         MiaoshaGoods miaoshaGoods = new MiaoshaGoods();
         miaoshaGoods.setGoodsId(goodsVO.getId());
-        miaoshaGoods.setStockCount(goodsVO.getGoodsStock() - 1);
+        miaoshaGoods.setStockCount(goodsVO.getStockCount() - 1);
         goodsDao.reduceStock(miaoshaGoods);
     }
 }

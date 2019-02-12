@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * @program: miaosha
- * @description:
+ * @description:订单服务类
  * @author: ZengGuangfu
  * @create 2019-02-12 15:29
  */
@@ -27,17 +27,6 @@ public class OrderService {
     @Transactional
     public OrderInfo createOrder(MiaoshaUser user, GoodsVO goodsVO) {
 
-       /* private Long id;
-        private Long userId;
-        private Long goodsId;
-        private Long  deliveryAddrId;
-        private String goodsName;
-        private Integer goodsCount;
-        private Double goodsPrice;
-        private Integer orderChannel;
-        private Integer status;
-        private Date createDate;
-        private Date payDate;*/
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setUserId(user.getMobile());
         orderInfo.setGoodsId(goodsVO.getId());
@@ -47,14 +36,19 @@ public class OrderService {
         orderInfo.setStatus(0);
         orderInfo.setCreateDate(new Date());
         orderInfo.setDeliveryAddrId(0L);
-        long orderInfoId = orderDao.insert(orderInfo);
+        long orderInfoId = orderDao.insertOrderInfo(orderInfo);
 
         MiaoshaOrder miaoshaOrder = new MiaoshaOrder();
         miaoshaOrder.setGoodsId(goodsVO.getId());
         miaoshaOrder.setUserId(user.getMobile());
         miaoshaOrder.setOrderId(orderInfoId);
-        orderDao.insert(miaoshaOrder);
+        orderDao.insertMiaoshaOrder(miaoshaOrder);
 
         return orderInfo;
+    }
+
+    public MiaoshaOrder getMisoshaOrderByUserIdAndGoodsId(long mobile, long goodsId) {
+        MiaoshaOrder miaoshaOrder = orderDao.getMisoshaOrderByUserIdAndGoodsId(mobile,goodsId);
+        return miaoshaOrder;
     }
 }

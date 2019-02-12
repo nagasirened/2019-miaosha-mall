@@ -1,6 +1,5 @@
 package com.zengg.miaosha.dao;
 
-import com.zengg.miaosha.model.Goods;
 import com.zengg.miaosha.model.MiaoshaGoods;
 import com.zengg.miaosha.model.vo.GoodsVO;
 import org.apache.ibatis.annotations.Mapper;

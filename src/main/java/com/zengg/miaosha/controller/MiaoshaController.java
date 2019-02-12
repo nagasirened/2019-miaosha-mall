@@ -6,7 +6,7 @@ import com.zengg.miaosha.model.OrderInfo;
 import com.zengg.miaosha.model.vo.GoodsVO;
 import com.zengg.miaosha.service.GoodsService;
 import com.zengg.miaosha.service.MiaoshaService;
-import com.zengg.miaosha.service.OrderSrevice;
+import com.zengg.miaosha.service.OrderService;
 import com.zengg.miaosha.utils.CodeMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,7 +29,7 @@ public class MiaoshaController {
     private GoodsService goodsService;
 
     @Autowired
-    private OrderSrevice orderSrevice;
+    private OrderService orderService;
 
     @Autowired
     private MiaoshaService miaoshaService;
@@ -43,12 +43,12 @@ public class MiaoshaController {
             return "miaosha_filed";
         }
 
-        MiaoshaOrder miaoshaOrder = orderSrevice.getMisoshaOrderByUserIdAndGoodsId(user.getMobile(),goodsId);
+        MiaoshaOrder miaoshaOrder = orderService.getMisoshaOrderByUserIdAndGoodsId(user.getMobile(),goodsId);
         if (miaoshaOrder != null){
             // 判断是否已经成功秒杀过了
             if (goodsVO.getStockCount() <= 0){
                 model.addAttribute("errorMsg", CodeMsg.MIAOSHA_REPET.getMsg());
-                return "miaosha_filed";
+                return "miaosha_fail";
             }
         }
 

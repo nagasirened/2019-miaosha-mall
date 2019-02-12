@@ -19,7 +19,7 @@ public class LoginVO {
 
     @NotNull
     @isMobile
-    private long mobile;
+    private String mobile;
 
     @NotNull
     @Length(min = 32)

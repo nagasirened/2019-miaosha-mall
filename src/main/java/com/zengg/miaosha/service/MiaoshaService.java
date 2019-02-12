@@ -27,13 +27,11 @@ public class MiaoshaService {
 
     @Transactional
     public OrderInfo miaosha(MiaoshaUser user, GoodsVO goodsVO) {
-        // 1、减库存 2、下订单  3、写入秒杀订单
+        // 1、减库存
         goodsService.reduceStock(goodsVO);
-        OrderInfo orderInfo = orderService.createOrder(user ,goodsVO);
+        // 2、下订单,写入秒杀订单
+        OrderInfo orderInfo = orderService.createOrder(user,goodsVO);
 
-
-
-
-        return null;
+        return orderInfo;
     }
 }

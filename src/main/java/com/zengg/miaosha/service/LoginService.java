@@ -48,7 +48,8 @@ public class LoginService {
             throw new GlobalException(CodeMsg.SERVER_ERROR);
         }
         log.info(loginVO.toString());
-        long mobile = loginVO.getMobile();
+        String phone = loginVO.getMobile();
+        long mobile = Long.valueOf(phone);
         MiaoshaUser user = getByMobile(mobile);
         if (user == null){
             throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
