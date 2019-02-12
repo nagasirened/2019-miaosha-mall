@@ -11,9 +11,9 @@ import java.util.Date;
  * @create 2019-02-11 15:17
  */
 @Data
-public class LoginUser {
+public class MiaoshaUser {
 
-    private String mobile;
+    private long mobile;
     private String nickname;
     private String password;
     private String salt;

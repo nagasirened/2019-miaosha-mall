@@ -1,11 +1,10 @@
-package com.zengg.miaosha.config.redis;
+package com.zengg.miaosha.service;
 
 import com.alibaba.fastjson.JSON;
 import com.zengg.miaosha.config.redis.mould.KeyPrefix;
-import com.zengg.miaosha.config.redis.mould.realize.UserKey;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -17,7 +16,7 @@ import redis.clients.jedis.JedisPool;
  * @create 2019-02-11 11:29
  */
 
-@Component
+@Service
 public class RedisService {
 
     @Autowired
@@ -33,7 +32,6 @@ public class RedisService {
             jedis = jedisPool.getResource();
             String realKey = keyPrefix.getPrefix() + key;
             String str = jedis.get(realKey);
-            System.out.println(realKey + "   " + str);
             T t = stringToBean(str,clazz);
             return t;
         }catch (Exception e){

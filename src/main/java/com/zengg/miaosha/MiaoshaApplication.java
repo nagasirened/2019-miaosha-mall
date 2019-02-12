@@ -3,6 +3,7 @@ package com.zengg.miaosha;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @program: miaosha
@@ -12,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-@MapperScan(value = "com.zengg.miaosha.dao")
 public class MiaoshaApplication {
 
     public static void main(String[] args) throws Exception{

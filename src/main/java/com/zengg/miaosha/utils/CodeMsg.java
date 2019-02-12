@@ -9,6 +9,8 @@ public class CodeMsg {
 
 
 	public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "服务端异常");
+	public static CodeMsg VALIDATION_ERROR = new CodeMsg(500101, "参数校验异常：%s");
+	public static CodeMsg GLOBAL_ERROR = new CodeMsg(500101, "全局异常：%s");
 	//登录模块 5002XX
 	public static CodeMsg PASSWPRD_EMPTY = new CodeMsg(500201, "密码不能为空");
 	public static CodeMsg MOBILE_EMPTY = new CodeMsg(500202, "手机号不能为空");
@@ -20,11 +22,18 @@ public class CodeMsg {
 	//订单模块 5004XX
 	
 	//秒杀模块 5005XX
-	
-	
+	public static CodeMsg MIAOSHA_OVER = new CodeMsg(500501, "库存不足");
+	public static CodeMsg MIAOSHA_REPET = new CodeMsg(500501, "不能重复秒杀");
+
 	private CodeMsg(int code, String msg) {
 		this.code = code;
 		this.msg = msg;
+	}
+
+	public CodeMsg fillmsg(Object... args) {
+		int code = this.code;
+		String message = String.format(this.msg, args);
+		return new CodeMsg(code,message);
 	}
 	
 	public int getCode() {

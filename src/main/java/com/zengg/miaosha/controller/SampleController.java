@@ -1,8 +1,8 @@
 package com.zengg.miaosha.controller;
 
-import com.zengg.miaosha.config.redis.RedisService;
 import com.zengg.miaosha.config.redis.mould.realize.UserKey;
 import com.zengg.miaosha.model.User;
+import com.zengg.miaosha.service.RedisService;
 import com.zengg.miaosha.service.UserService;
 import com.zengg.miaosha.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;

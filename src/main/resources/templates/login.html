@@ -93,9 +93,10 @@
                 layer.closeAll();
                 console.log(data);
                 if(data.code == 0){
-                    layer.msg("登录成功")
+                    layer.msg("登录成功");
+                    window.location.href="/goods/to_goodsList";
                 }else{
-                    layer.msg("登录失败")
+                    layer.msg(data.msg);
                 }
             },
             error:function (data) {
