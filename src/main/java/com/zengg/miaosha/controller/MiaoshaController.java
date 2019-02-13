@@ -49,11 +49,9 @@ public class MiaoshaController {
         MiaoshaOrder miaoshaOrder = orderService.getMisoshaOrderByUserIdAndGoodsId(user.getMobile(),goodsId);
         if (miaoshaOrder != null){
             // 判断是否已经成功秒杀过了
-            if (goodsVO.getStockCount() <= 0){
-                model.addAttribute("errorMsg", CodeMsg.MIAOSHA_REPET.getMsg());
-                log.info("秒杀失败，该产品您已秒杀过了");
-                return "miaosha_fail";
-            }
+            model.addAttribute("errorMsg", CodeMsg.MIAOSHA_REPET.getMsg());
+            log.info("秒杀失败，该产品您已秒杀过了");
+            return "miaosha_fail";
         }
 
         OrderInfo orderInfo = miaoshaService.miaosha(user,goodsVO);

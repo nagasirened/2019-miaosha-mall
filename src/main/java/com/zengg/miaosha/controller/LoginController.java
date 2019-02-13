@@ -34,7 +34,7 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVO loginVO) throws GlobalException {
+    public Result<String> doLogin(HttpServletResponse response, @Valid LoginVO loginVO) throws GlobalException {
         /*if (loginVO.getPassword() == null ){
             return Result.error(CodeMsg.PASSWPRD_EMPTY);
         }
@@ -46,8 +46,8 @@ public class LoginController {
             return Result.error(CodeMsg.PASSWORD_ERROR);
         }*/
 
-        loginService.doLogin(response,loginVO);
-        return Result.success(true);
+        String token = loginService.doLogin(response, loginVO);
+        return Result.success(token);
 
     }
 }

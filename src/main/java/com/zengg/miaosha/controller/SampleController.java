@@ -1,6 +1,7 @@
 package com.zengg.miaosha.controller;
 
 import com.zengg.miaosha.config.redis.mould.realize.UserKey;
+import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.User;
 import com.zengg.miaosha.service.RedisService;
 import com.zengg.miaosha.service.UserService;
@@ -76,5 +77,14 @@ public class SampleController {
         User user = new User(4, "huangyu");
         boolean bool = redisService.set(UserKey.getById,"2", user);
         return Result.success(bool);
+    }
+
+    /**
+     * 压测带参数的请求
+     */
+    @RequestMapping(value = "/info")
+    @ResponseBody
+    public Result<MiaoshaUser> info(Model model ,MiaoshaUser user){
+        return Result.success(user);
     }
 }

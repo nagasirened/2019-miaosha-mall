@@ -43,7 +43,7 @@ public class LoginService {
         return null;
     }
 
-    public boolean doLogin(HttpServletResponse response,LoginVO loginVO) throws GlobalException {
+    public String doLogin(HttpServletResponse response,LoginVO loginVO) throws GlobalException {
         if (loginVO == null) {
             throw new GlobalException(CodeMsg.SERVER_ERROR);
         }
@@ -61,7 +61,7 @@ public class LoginService {
         String token = UUIDUtils.uuid();
         //登录成功
         addCookie(response,token,user);
-        return true;
+        return token;
     }
 
     public MiaoshaUser getByToken(HttpServletResponse response,String token){
