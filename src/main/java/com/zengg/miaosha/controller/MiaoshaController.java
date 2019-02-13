@@ -8,6 +8,7 @@ import com.zengg.miaosha.service.GoodsService;
 import com.zengg.miaosha.service.MiaoshaService;
 import com.zengg.miaosha.service.OrderService;
 import com.zengg.miaosha.utils.CodeMsg;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping(value = "/miaosha")
+@Slf4j
 public class MiaoshaController {
 
     @Autowired
@@ -40,7 +42,8 @@ public class MiaoshaController {
         // 判断是否还有库存
         if (goodsVO.getStockCount() <= 0){
             model.addAttribute("errorMsg", CodeMsg.MIAOSHA_OVER.getMsg());
-            return "miaosha_filed";
+            log.info("秒杀失败，跳转到秒杀失败页面");
+            return "miaosha_fail";
         }
 
         MiaoshaOrder miaoshaOrder = orderService.getMisoshaOrderByUserIdAndGoodsId(user.getMobile(),goodsId);
@@ -48,12 +51,13 @@ public class MiaoshaController {
             // 判断是否已经成功秒杀过了
             if (goodsVO.getStockCount() <= 0){
                 model.addAttribute("errorMsg", CodeMsg.MIAOSHA_REPET.getMsg());
+                log.info("秒杀失败，该产品您已秒杀过了");
                 return "miaosha_fail";
             }
         }
 
-        // 1、减库存 2、下订单  3、写入秒杀订单
         OrderInfo orderInfo = miaoshaService.miaosha(user,goodsVO);
+        log.info("秒杀成功，订单号为：{}",orderInfo.getId());
         model.addAttribute("orderInfo", orderInfo);
         model.addAttribute("goods", goodsVO);
         return "order_detail";

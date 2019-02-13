@@ -36,12 +36,12 @@ public class OrderService {
         orderInfo.setStatus(0);
         orderInfo.setCreateDate(new Date());
         orderInfo.setDeliveryAddrId(0L);
-        long orderInfoId = orderDao.insertOrderInfo(orderInfo);
+        orderDao.insertOrderInfo(orderInfo); //返回主键到对象中
 
         MiaoshaOrder miaoshaOrder = new MiaoshaOrder();
         miaoshaOrder.setGoodsId(goodsVO.getId());
         miaoshaOrder.setUserId(user.getMobile());
-        miaoshaOrder.setOrderId(orderInfoId);
+        miaoshaOrder.setOrderId(orderInfo.getId());
         orderDao.insertMiaoshaOrder(miaoshaOrder);
 
         return orderInfo;
