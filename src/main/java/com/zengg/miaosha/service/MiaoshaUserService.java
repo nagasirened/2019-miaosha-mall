@@ -7,10 +7,12 @@ import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.vo.LoginVO;
 import com.zengg.miaosha.utils.CodeMsg;
 import com.zengg.miaosha.utils.Md5Utils;
+import com.zengg.miaosha.utils.Result;
 import com.zengg.miaosha.utils.UUIDUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
 import javax.servlet.http.Cookie;
@@ -25,7 +27,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class LoginService {
+public class MiaoshaUserService {
 
     public static final String COOKIE_NAME_TOKEN = "token";
 
@@ -35,14 +37,62 @@ public class LoginService {
     @Autowired
     private RedisService redisService;
 
+    /**
+     * 获取登录对象的方法
+     * @param mobile
+     * @return
+     */
     public MiaoshaUser getByMobile(long mobile){
-        List<MiaoshaUser> loginUserList = loginUserDao.getByMobile(mobile);
-        if (loginUserList != null && !loginUserList.isEmpty()){
-            return loginUserList.get(0);
+        // 取缓存
+        MiaoshaUser user = redisService.get(MiaoshaUserKey.getByMobile, "" + mobile, MiaoshaUser.class);
+        if (user != null ){
+            return user;
         }
-        return null;
+        // 缓存没有则取数据库，并缓存
+        user = loginUserDao.getByMobile(mobile);
+        if (user != null ){
+            redisService.set(MiaoshaUserKey.getByMobile,"" + mobile, user);
+        }
+        return user;
     }
 
+    /**
+     * 用户修改密码
+     * @param mobile
+     * @param passwordNew
+     * @return
+     * @throws GlobalException
+     */
+    @Transactional
+    public boolean updateMiaoshaUserPassword(long mobile,String passwordNew) throws GlobalException {
+        // 取user
+        MiaoshaUser oldUser = loginUserDao.getByMobile(mobile);
+        if (oldUser == null ){
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        }
+
+        // 更新数据库
+        MiaoshaUser user = new MiaoshaUser();
+        user.setMobile(mobile);
+        user.setPassword(Md5Utils.formpassToDBpass(passwordNew,Md5Utils.SALT));
+        int i = loginUserDao.updateMiaoshaUserPassword(user);
+        if (i > 0){
+            // 处理缓存,包括Cookie中的token
+            redisService.delete(MiaoshaUserKey.getByMobile,"" + mobile);
+
+            oldUser.setPassword(user.getPassword());
+            redisService.set(MiaoshaUserKey.token,"" + mobile , oldUser);
+        }
+        return true;
+    }
+
+    /**
+     * 登录方法，完成后添加Cookie以及token的缓存
+     * @param response
+     * @param loginVO
+     * @return
+     * @throws GlobalException
+     */
     public String doLogin(HttpServletResponse response,LoginVO loginVO) throws GlobalException {
         if (loginVO == null) {
             throw new GlobalException(CodeMsg.SERVER_ERROR);
@@ -64,6 +114,12 @@ public class LoginService {
         return token;
     }
 
+    /**
+     * 查看缓存中改用户是否登录，用于分布式session
+     * @param response
+     * @param token
+     * @return
+     */
     public MiaoshaUser getByToken(HttpServletResponse response,String token){
         MiaoshaUser miaoshaUser = redisService.get(MiaoshaUserKey.token, token, MiaoshaUser.class);
         if (miaoshaUser != null){
@@ -72,6 +128,12 @@ public class LoginService {
         return miaoshaUser;
     }
 
+    /**
+     * 添加用户信息到Cookie中
+     * @param response
+     * @param token
+     * @param user
+     */
     public void addCookie(HttpServletResponse response, String token , MiaoshaUser user){
         //登录成功
         redisService.set(MiaoshaUserKey.token, token, user);
@@ -82,4 +144,6 @@ public class LoginService {
         cookie.setPath("/");
         response.addCookie(cookie);
     }
+
+
 }

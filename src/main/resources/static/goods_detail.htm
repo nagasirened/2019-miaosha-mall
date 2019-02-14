@@ -36,10 +36,12 @@
                 <span id="miaoshaTip"></span>
             </td>
             <td>
-                <form id="miaoshaForm" method="post" action="/miaosha/do_miaosha">
+               <!-- <form id="miaoshaForm" method="post" action="/miaosha/do_miaosha">
                     <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
-                    <input type="hidden" name="goodsId"  />
-                </form>
+                    <input type="hidden" id="goodsId"  />
+                </form>-->
+                <button class="btn btn-primary btn-block" onclick="doMiaosha()" id="buyButton">立即秒杀</button>
+                <input type="hidden" id="goodsId"  />
             </td>
         </tr>
         <tr>
@@ -72,11 +74,11 @@
                 if (info.code == 0){
                     render(info.data);
                 }else{
-                    layer("客户端请求有误,successfunction");
+                    layer.msg("客户端请求有误,successfunction");
                 }
             },
             error:function (info) {
-                layer("客户端请求有误,errorfunction");
+                layer.msg("客户端请求有误,errorfunction");
             }
         })
     }
@@ -125,6 +127,28 @@
             $("#buyButton").attr("disabled",true);
             $("#miaoshaTip").html("秒杀已结束");
         }
+    }
+    
+    function doMiaosha() {
+        var goodsId = $("#goodsId").val();
+        $.ajax({
+            url:"/miaosha/do_miaosha",
+            type:"POST",
+            data:{
+                "goodsId": goodsId
+            },
+            success:function (info) {
+                if (info.code == 0){
+                    layer.msg("秒杀成功");
+                    window.location.href="/order_detail.htm?orderId="+info.data.id;
+                }else{
+                    layer.msg("秒杀失败,successfunction");
+                }
+            },
+            error:function (info) {
+                layer.msg("秒杀失败,errorfunction");
+            }
+        })
     }
 
 </script>

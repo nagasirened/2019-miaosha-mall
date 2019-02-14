@@ -72,22 +72,6 @@
 </body>
 </html>
 <script>
-function render(detail){
-	var goods = detail.goods;
-	var order = detail.order;
-	$("#goodsName").text(goods.goodsName);
-	$("#goodsImg").attr("src", goods.goodsImg);
-	$("#orderPrice").text(order.goodsPrice);
-	$("#createDate").text(new Date(order.createDate).format("yyyy-MM-dd hh:mm:ss"));
-	var status = "";
-	if(order.status == 0){
-		status = "未支付"
-	}else if(order.status == 1){
-		status = "待发货";
-	}
-	$("#orderStatus").text(status);
-	
-}
 
 $(function(){
 	getOrderDetail();
@@ -101,9 +85,9 @@ function getOrderDetail(){
 		data:{
 			orderId:orderId
 		},
-		success:function(data){
-			if(data.code == 0){
-				render(data.data);
+		success:function(info){
+			if(info.code == 0){
+				render(info.data);
 			}else{
 				layer.msg(data.msg);
 			}
@@ -114,6 +98,20 @@ function getOrderDetail(){
 	});
 }
 
-
+function render(detail){
+    var goods = detail.goodsVO;
+    var order = detail.orderInfo;
+    $("#goodsName").text(goods.goodsName);
+    $("#goodsImg").attr("src", goods.goodsImg);
+    $("#orderPrice").text(order.goodsPrice);
+    $("#createDate").text(new Date(order.createDate).format("yyyy-MM-dd hh:mm:ss"));
+    var status = "";
+    if(order.status == 0){
+        status = "未支付"
+    }else if(order.status == 1){
+        status = "待发货";
+    }
+    $("#orderStatus").text(status);
+}
 
 </script>

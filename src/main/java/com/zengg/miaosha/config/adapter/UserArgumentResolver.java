@@ -1,7 +1,7 @@
 package com.zengg.miaosha.config.adapter;
 
 import com.zengg.miaosha.model.MiaoshaUser;
-import com.zengg.miaosha.service.LoginService;
+import com.zengg.miaosha.service.MiaoshaUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletResponse;
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
-    private LoginService loginService;
+    private MiaoshaUserService miaoshaUserService;
 
     /**
-     * 如果参数类型是MiaoshaUser ，就返回true
+     * 如果方法参数类型含有 MiaoshaUser ，就返回true，执行下面的参数整合
      * @param methodParameter
      * @return
      */
@@ -36,6 +36,9 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     public boolean supportsParameter(MethodParameter methodParameter) {
         Class<?> clazz = methodParameter.getParameterType();
         return clazz == MiaoshaUser.class;
+
+        // 查找参数中是否含有@RequestBody注解
+        // return methodParameter.hasParameterAnnotation(RequestBody.class);
     }
 
     /**
@@ -53,16 +56,22 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
 
-        String paramToken = request.getParameter(LoginService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request,LoginService.COOKIE_NAME_TOKEN);
+        String paramToken = request.getParameter(miaoshaUserService.COOKIE_NAME_TOKEN);
+        String cookieToken = getCookieValue(request,miaoshaUserService.COOKIE_NAME_TOKEN);
         if (StringUtils.isAllBlank(paramToken,cookieToken)){
             return null;
         }
         String token = StringUtils.isBlank(cookieToken) ?  paramToken : cookieToken;
-        MiaoshaUser user = loginService.getByToken(response, token);
+        MiaoshaUser user = miaoshaUserService.getByToken(response, token);
         return user;
     }
 
+    /**
+     * 从cookie中获取token的值
+     * @param request
+     * @param cookieName
+     * @return
+     */
     public String getCookieValue(HttpServletRequest request,String cookieName){
         Cookie[] cookies = request.getCookies();
         if (cookies == null || cookies.length <= 0){

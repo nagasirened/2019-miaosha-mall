@@ -3,6 +3,7 @@ package com.zengg.miaosha.controller;
 import com.zengg.miaosha.config.redis.mould.realize.UserKey;
 import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.User;
+import com.zengg.miaosha.service.RabbitMQSender;
 import com.zengg.miaosha.service.RedisService;
 import com.zengg.miaosha.service.UserService;
 import com.zengg.miaosha.utils.Result;
@@ -28,6 +29,9 @@ public class SampleController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private RabbitMQSender rabbitMQSender;
 
     /**
      * 测试thymeleaf
@@ -86,5 +90,18 @@ public class SampleController {
     @ResponseBody
     public Result<MiaoshaUser> info(Model model ,MiaoshaUser user){
         return Result.success(user);
+    }
+
+
+    /**
+     * 压测带参数的请求
+     */
+
+
+    @RequestMapping(value = "/mq")
+    @ResponseBody
+    public void mq(Model model ,MiaoshaUser user){
+        // rabbitMQSender.send("hello ,test rabbitmq");
+        rabbitMQSender.sendHeader(" third test data");
     }
 }

@@ -10,10 +10,15 @@ import com.zengg.miaosha.config.redis.mould.BasePrefix;
  */
 public class GoodsKey extends BasePrefix {
 
-    private GoodsKey(String prefix){
-        super(prefix);
+    private GoodsKey(int expireSeconds,String prefix){
+        super(expireSeconds,prefix);
     }
 
-    public static GoodsKey getByName = new GoodsKey("goodsName");
-    public static GoodsKey getByTitle = new GoodsKey("goodsTitle");
+    /**
+     * 默认页面缓存60s
+     */
+    public static GoodsKey getGoodsList = new GoodsKey(60,"goodsList");
+
+    public static GoodsKey getGoodsDetail = new GoodsKey(60,"goodsDetail");
+
 }

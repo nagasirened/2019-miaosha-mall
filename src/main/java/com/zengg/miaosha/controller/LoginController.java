@@ -2,7 +2,7 @@ package com.zengg.miaosha.controller;
 
 import com.zengg.miaosha.config.exception.GlobalException;
 import com.zengg.miaosha.model.vo.LoginVO;
-import com.zengg.miaosha.service.LoginService;
+import com.zengg.miaosha.service.MiaoshaUserService;
 import com.zengg.miaosha.utils.CodeMsg;
 import com.zengg.miaosha.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import javax.validation.Valid;
 public class LoginController {
 
     @Autowired
-    private LoginService loginService;
+    private MiaoshaUserService miaoshaUserService;
 
     @RequestMapping("/toLogin")
     public String toLogin(){
@@ -46,7 +46,7 @@ public class LoginController {
             return Result.error(CodeMsg.PASSWORD_ERROR);
         }*/
 
-        String token = loginService.doLogin(response, loginVO);
+        String token = miaoshaUserService.doLogin(response, loginVO);
         return Result.success(token);
 
     }

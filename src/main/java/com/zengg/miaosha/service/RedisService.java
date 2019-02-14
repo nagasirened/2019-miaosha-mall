@@ -93,6 +93,26 @@ public class RedisService {
     }
 
     /**
+     * 判断该key 是否存在
+     * @param keyPrefix
+     * @param key
+     * @return
+     */
+    public boolean delete(KeyPrefix keyPrefix,String key){
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            String realKey = keyPrefix.getPrefix() + key;
+            return jedis.del(realKey) > 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }finally {
+            returnJedis(jedis);
+        }
+    }
+
+    /**
      * 增加数值
      * @param keyPrefix key addNumber
      * @param <T>
@@ -151,7 +171,7 @@ public class RedisService {
     /**
      * 字符串转化为Bean对象
      */
-    private <T> T stringToBean(String str, Class<T> clazz){
+    public static  <T> T stringToBean(String str, Class<T> clazz){
         if (StringUtils.isEmpty(str) || clazz == null ){
             return null;
         }
@@ -169,7 +189,7 @@ public class RedisService {
     /**
      * Bean对象转化为String类型
      */
-    private <T> String beanToString(T t){
+    public static  <T> String beanToString(T t){
         if (t == null){
             return null;
         }
