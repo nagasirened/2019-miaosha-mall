@@ -32,10 +32,23 @@ public class RabbitmqConfig {
 
 
     /**
-     * Direct 模式
+     * 业务用Queue 使用 Direct 模式
      * @return
      */
     @Bean
+    public Queue miaosha_queue(){
+        return new Queue(MIAOSHA_QUEUE,true);
+    }
+
+
+
+
+
+    /**
+     * Direct 模式
+     * @return
+     */
+    //@Bean
     public Queue queue(){
         return new Queue(QUEUENAME,true);
     }
@@ -44,26 +57,25 @@ public class RabbitmqConfig {
      * Topic 模式
      * @return
      */
-    @Bean
+    //@Bean
     public Queue topicQueue1(){
         return new Queue(TOPIC_QUEUENAME_1,true);
     }
 
-    @Bean
+    //@Bean
     public Queue topicQueue2(){
         return new Queue(TOPIC_QUEUENAME_2,true);
     }
-    @Bean
+    //@Bean
     public TopicExchange topicExchange(){
         return new TopicExchange(TOPIC_EXCHANGE);
     }
-
-    @Bean
+    //@Bean
     public Binding topicBinding1(){
         return BindingBuilder.bind(topicQueue1()).to(topicExchange()).with(ROUNTING_KEY1);
     }
 
-    @Bean
+    //@Bean
     public Binding topicBinding2(){
         return BindingBuilder.bind(topicQueue2()).to(topicExchange()).with(ROUNTING_KEY2);
     }
@@ -72,17 +84,17 @@ public class RabbitmqConfig {
      * 广播模式fanout
      * @return
      */
-    @Bean
+    //@Bean
     public FanoutExchange fanoutExchange(){
         return new FanoutExchange(FANOUT_EXCHANGE);
     }
 
-    @Bean
+    //@Bean
     public Binding fanoutBinding1(){
         return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
     }
 
-    @Bean
+    //@Bean
     public Binding fanoutBinding2(){
         return BindingBuilder.bind(topicQueue1()).to(fanoutExchange());
     }
@@ -91,17 +103,17 @@ public class RabbitmqConfig {
     /**
      * Header模式
      */
-    @Bean
+    //@Bean
     public HeadersExchange headersExchange(){
         return new HeadersExchange(HEADER_EXCHANGE);
     }
 
-    @Bean
+    //@Bean
     public Queue headerQueue(){
         return new Queue(HEADER_QUEUENAME,true);
     }
 
-    @Bean
+    //@Bean
     public Binding headerBinding(){
         Map<String,Object> map = new HashMap<>();
         map.put("header1","value1");

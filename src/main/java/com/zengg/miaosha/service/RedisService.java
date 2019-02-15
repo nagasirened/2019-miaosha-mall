@@ -93,7 +93,7 @@ public class RedisService {
     }
 
     /**
-     * 判断该key 是否存在
+     * 删除这个key的内容
      * @param keyPrefix
      * @param key
      * @return

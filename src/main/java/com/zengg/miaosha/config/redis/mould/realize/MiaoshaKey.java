@@ -16,4 +16,6 @@ public class MiaoshaKey extends BasePrefix {
 
     public static MiaoshaKey isOver = new MiaoshaKey(0,"msOver");
 
+    public static MiaoshaKey getRandomPath = new MiaoshaKey(60,"msOver");
+
 }

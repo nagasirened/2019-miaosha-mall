@@ -76,7 +76,7 @@
     
     function doLogin() {
         //显示加载中...
-        g_showLoading();
+        g_showLoading("加载中...");
 
         var pass = $("#password").val();
         str = "" + g_passsword_salt.charAt(0) + g_passsword_salt.charAt(2) + pass + g_passsword_salt.charAt(5) + g_passsword_salt.charAt(4);

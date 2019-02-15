@@ -74,4 +74,9 @@ public class OrderService {
     public OrderInfo getOrderInfoByOrderId(long orderId){
         return orderDao.getOrderInfoByOrderId(orderId);
     }
+
+    public void deleteOrders() {
+        orderDao.deleteOrders();
+        orderDao.deleteMiaoshaOrders();
+    }
 }

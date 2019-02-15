@@ -46,7 +46,7 @@ public class RabbitmqReceiver {
      * Derict模式接收测试  演示代码
      * @param message
      */
-    @RabbitListener(queues = RabbitmqConfig.QUEUENAME)
+    //@RabbitListener(queues = RabbitmqConfig.QUEUENAME)
     public void receive(String message){
         log.info("receive message: " + message);
     }
@@ -55,12 +55,12 @@ public class RabbitmqReceiver {
      * 主题模式和广播模式的接收测试  演示代码
      * @param message
      */
-    @RabbitListener(queues = RabbitmqConfig.TOPIC_QUEUENAME_1)
+    //@RabbitListener(queues = RabbitmqConfig.TOPIC_QUEUENAME_1)
     public void receiveTopic1(String message){
         log.info("topicQueue 1 reveive: " + message);
     }
 
-    @RabbitListener(queues = RabbitmqConfig.TOPIC_QUEUENAME_2)
+    //@RabbitListener(queues = RabbitmqConfig.TOPIC_QUEUENAME_2)
     public void receiveTopic2(String message){
         log.info("topicQueue 2 reveive: " + message);
     }
@@ -69,7 +69,7 @@ public class RabbitmqReceiver {
      * Header模式发送和接收都是字节数组  演示代码
      * @param message
      */
-    @RabbitListener(queues = RabbitmqConfig.HEADER_QUEUENAME)
+    //@RabbitListener(queues = RabbitmqConfig.HEADER_QUEUENAME)
     public void receiveHeader(byte[] message){
         log.info("headerQueue reveive: " + new String(message));
     }

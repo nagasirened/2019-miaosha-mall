@@ -40,7 +40,7 @@
                     <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
                     <input type="hidden" id="goodsId"  />
                 </form>-->
-                <button class="btn btn-primary btn-block" onclick="doMiaosha()" id="buyButton">立即秒杀</button>
+                <button class="btn btn-primary btn-block" onclick="getMiaoshaPath()" id="buyButton">立即秒杀</button>
                 <input type="hidden" id="goodsId"  />
             </td>
         </tr>
@@ -128,18 +128,38 @@
             $("#miaoshaTip").html("秒杀已结束");
         }
     }
+
+
+    function getMiaoshaPath(){
+        var goodsId = $("#goodsId").val();
+        g_showLoading("加载中...");
+        $.ajax({
+            url:"/miaosha/path",
+            type:"GET",
+            data:{
+                "goodsId": goodsId
+            },
+            success:function (info) {
+                if(info.code == 0){
+                    doMiaosha(info.data);
+                }
+            },
+            error:function (info) {
+                layer.msg("秒杀失败,errorfunction");
+            }
+        })
+    }
     
-    function doMiaosha() {
+    function doMiaosha(path) {
         var goodsId = $("#goodsId").val();
         $.ajax({
-            url:"/miaosha/do_miaosha",
+            url:"/miaosha/"+path+"/do_miaosha",
             type:"POST",
             data:{
                 "goodsId": goodsId
             },
             success:function (info) {
-                if (info.code == 0){
-                    // window.location.href="/order_detail.htm?orderId="+info.data.id;
+                if (info.data == 0){
                     // 轮询秒杀结果
                     getMiaoshaResult(goodsId);
                 }else{
@@ -161,10 +181,11 @@
                 "goodsId": goodsId
             },
             success:function (info) {
-                if (info.code = 0){
-                    var result = info.data;
+                if (info.code == 0){
+                    var result = parseInt(info.data);
                     if(result < 0){
                         layer.msg("秒杀失败");
+                        layer.closeAll();
                     }else if (result == 0){ // 继续轮询
                         setTimeout(function(){
                             getMiaoshaResult(goodsId);

@@ -1,8 +1,12 @@
 package com.zengg.miaosha.controller;
 
+import com.zengg.miaosha.config.redis.mould.realize.GoodsKey;
+import com.zengg.miaosha.config.redis.mould.realize.MiaoshaKey;
 import com.zengg.miaosha.config.redis.mould.realize.UserKey;
 import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.User;
+import com.zengg.miaosha.model.vo.GoodsVO;
+import com.zengg.miaosha.service.GoodsService;
 import com.zengg.miaosha.service.RabbitMQSender;
 import com.zengg.miaosha.service.RedisService;
 import com.zengg.miaosha.service.UserService;
@@ -12,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * @program: miaosha
@@ -32,6 +38,9 @@ public class SampleController {
 
     @Autowired
     private RabbitMQSender rabbitMQSender;
+
+    @Autowired
+    private GoodsService goodsService;
 
     /**
      * 测试thymeleaf
@@ -96,12 +105,22 @@ public class SampleController {
     /**
      * 压测带参数的请求
      */
-
-
     @RequestMapping(value = "/mq")
     @ResponseBody
     public void mq(Model model ,MiaoshaUser user){
-        // rabbitMQSender.send("hello ,test rabbitmq");
         rabbitMQSender.sendHeader(" third test data");
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+

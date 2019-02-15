@@ -68,4 +68,8 @@ public class GoodsService  {
         map.put("remainSeconds",remainSeconds);
         return map;
     }
+
+    public void resetSotck(MiaoshaGoods miaoshaGoods) {
+        goodsDao.resetMiaoshaGoodsSotck(miaoshaGoods);
+    }
 }

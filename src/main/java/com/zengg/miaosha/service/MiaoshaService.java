@@ -1,16 +1,16 @@
 package com.zengg.miaosha.service;
 
-import com.zengg.miaosha.config.redis.mould.realize.GoodsKey;
 import com.zengg.miaosha.config.redis.mould.realize.MiaoshaKey;
 import com.zengg.miaosha.model.MiaoshaOrder;
 import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.OrderInfo;
 import com.zengg.miaosha.model.vo.GoodsVO;
+import com.zengg.miaosha.utils.Md5Utils;
+import com.zengg.miaosha.utils.UUIDUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * @program: miaosha
@@ -35,13 +35,14 @@ public class MiaoshaService {
     public OrderInfo miaosha(MiaoshaUser user, GoodsVO goodsVO) {
         // 1、减库存
         boolean bool = goodsService.reduceStock(goodsVO);
-        OrderInfo orderInfo = null;
         // 2、下订单,写入秒杀订单
         if (bool) {
-            orderInfo = orderService.createOrder(user, goodsVO);
+            return orderService.createOrder(user, goodsVO);
+        }else{
+            setMiaoshaOver(goodsVO.getStockCount());
+            return null;
         }
-        setMiaoshaOver(goodsVO.getStockCount());
-        return orderInfo;
+
     }
 
 
@@ -68,16 +69,51 @@ public class MiaoshaService {
         }
     }
 
-
+    /**
+     * 标记改产品秒杀完了
+     * @param goodsId
+     */
     public void setMiaoshaOver(long goodsId) {
         redisService.set(MiaoshaKey.isOver, "" + goodsId, true);
     }
 
+    /**
+     * 获取某产品是否秒杀完了
+     * @param goodsId
+     * @return
+     */
     private boolean getMiaoshaOver(long goodsId) {
         boolean exist = redisService.exist(MiaoshaKey.isOver, "" + goodsId);
         if (exist){
             return true;
         }
         return false;
+    }
+
+    /**
+     * 生成秒杀随机路径
+     * @param mobile
+     * @param goodsId
+     * @return
+     */
+    public String createPath(long mobile, long goodsId) {
+        String randomPath = Md5Utils.md5(UUIDUtils.uuid() + "1a2b");
+        redisService.set(MiaoshaKey.getRandomPath,""+mobile +" "+ goodsId ,randomPath);
+        return randomPath;
+    }
+
+    /**
+     * 验证秒杀随机路径
+     * @param mobile
+     * @param goodsId
+     * @param path
+     * @return
+     */
+    public boolean checkRandomPath(long mobile, long goodsId, String path) {
+        if (StringUtils.isAllBlank(""+mobile , path)){
+            return false;
+        }
+        String pathOld = redisService.get(MiaoshaKey.getRandomPath, "" + mobile + " " + goodsId, String.class);
+        return StringUtils.equals(pathOld,path);
     }
 }

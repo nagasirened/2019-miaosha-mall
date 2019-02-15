@@ -2,7 +2,9 @@ package com.zengg.miaosha.controller;
 
 import com.zengg.miaosha.config.adapter.NeedLogin;
 import com.zengg.miaosha.config.redis.mould.realize.GoodsKey;
+import com.zengg.miaosha.config.redis.mould.realize.MiaoshaKey;
 import com.zengg.miaosha.config.redis.mould.realize.OrderKey;
+import com.zengg.miaosha.model.MiaoshaGoods;
 import com.zengg.miaosha.model.MiaoshaOrder;
 import com.zengg.miaosha.model.MiaoshaUser;
 import com.zengg.miaosha.model.OrderInfo;
@@ -10,10 +12,12 @@ import com.zengg.miaosha.model.vo.GoodsVO;
 import com.zengg.miaosha.model.vo.MiaoshaMessageVO;
 import com.zengg.miaosha.service.*;
 import com.zengg.miaosha.utils.CodeMsg;
+import com.zengg.miaosha.utils.Md5Utils;
 import com.zengg.miaosha.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +33,10 @@ import java.util.Map;
  * @create 2019-02-12 15:03
  */
 
-@Controller
+@RestController
 @RequestMapping(value = "/miaosha")
 @Slf4j
+@ConditionalOnBean(RedisService.class)
 public class MiaoshaController implements InitializingBean{
 
     @Autowired
@@ -84,17 +89,28 @@ public class MiaoshaController implements InitializingBean{
      * @param goodsId
      * @return
      */
-    @PostMapping("/do_miaosha")
-    @ResponseBody
+    @PostMapping("/{path}/do_miaosha")
     @NeedLogin
     public Result<Integer> doMiaosha1(Model model,MiaoshaUser miaoshaUser
-                    ,@RequestParam("goodsId")long goodsId){
+                    ,@RequestParam("goodsId")long goodsId
+                    ,@PathVariable("path")String path){
+        if (miaoshaUser == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
         model.addAttribute("user",miaoshaUser);
+
         // 优化减少访问redis
         if (localOverMap.get(goodsId)){
             return Result.error(CodeMsg.MIAOSHA_OVER);
         }
-        // 返回减少后的值
+
+        // 检查path是否正确，隐藏秒杀接口地址
+        boolean checked = miaoshaService.checkRandomPath(miaoshaUser.getMobile(),goodsId,path);
+        if( !checked ){
+            return Result.error(CodeMsg.REQUEST_ILLEGLE);
+        }
+
+        // 内存标记，返回减少后的值
         Long stock = redisService.decrBy(GoodsKey.miaoshaGoodsStock, "" + goodsId, 1);
         if (stock < 0){
             localOverMap.put(goodsId,true);
@@ -125,15 +141,66 @@ public class MiaoshaController implements InitializingBean{
      * @return orderId:成功   1 秒杀失败 0 排队中
      */
     @GetMapping(value = "/msResult")
-    @ResponseBody
     @NeedLogin
     public Result<Long> msResult(Model model,MiaoshaUser miaoshaUser
             ,@RequestParam("goodsId")long goodsId){
+        if (miaoshaUser == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
         model.addAttribute("user",miaoshaUser);
         // orderId:成功   1 秒杀失败 0 排队中
         long result = miaoshaService.getMiaoshaResult(miaoshaUser.getMobile(),goodsId);
 
         return Result.success(result);
+    }
+
+    @GetMapping(value = "/path")
+    @NeedLogin
+    public Result<String> getMsPath(Model model,MiaoshaUser miaoshaUser
+            ,@RequestParam("goodsId")long goodsId){
+        if (miaoshaUser == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        String randomPath = miaoshaService.createPath(miaoshaUser.getMobile(),goodsId);
+        return Result.success(randomPath);
+    }
+
+
+    /**
+     * 回退方法  方便测试用
+     * @param model
+     * @param user
+     */
+    @RequestMapping(value = "/now/reset")
+    public Result<String> reset(Model model ,MiaoshaUser user){
+        // 清除缓存 token / miaoshaorder /
+        List<GoodsVO> goodsVOList = goodsService.getGoodsVOList();
+        orderService.deleteOrders();
+
+        for (GoodsVO goodsVO :goodsVOList){
+            goodsVO.setStockCount(10);
+            // 还原秒杀数
+            redisService.set(GoodsKey.miaoshaGoodsStock,"" + goodsVO.getId(),goodsVO.getStockCount());
+            localOverMap.put(goodsVO.getId(),false);
+            MiaoshaGoods miaoshaGoods = new MiaoshaGoods();
+            miaoshaGoods.setStockCount(10);
+            miaoshaGoods.setGoodsId(goodsVO.getId());
+            goodsService.resetSotck(miaoshaGoods);
+
+            // 删除秒杀订单缓存
+            boolean exist1 = redisService.exist(OrderKey.orderKey, "" + user.getMobile() + " " + goodsVO.getId());
+            if (exist1) {
+                redisService.delete(OrderKey.orderKey, "" + user.getMobile() + " " + goodsVO.getId());
+            }
+            // 删除秒杀完成缓存
+            boolean exist2 = redisService.exist(MiaoshaKey.isOver,""+goodsVO.getId());
+            if (exist2) {
+                redisService.delete(MiaoshaKey.isOver, "" + goodsVO.getId());
+            }
+        }
+
+        return Result.success("Success");
+
     }
 
 }
