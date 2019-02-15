@@ -16,6 +16,8 @@ import java.util.Map;
 @Configuration
 public class RabbitmqConfig {
 
+    public static final String MIAOSHA_QUEUE = "miaosha.queue";
+
     public static final String QUEUENAME = "queue";
     public static final String TOPIC_QUEUENAME_1 = "topic.queue1";
     public static final String TOPIC_QUEUENAME_2 = "topic.queue2";

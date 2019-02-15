@@ -2,6 +2,7 @@ package com.zengg.miaosha.service;
 
 
 import com.zengg.miaosha.config.rabbitmq.RabbitmqConfig;
+import com.zengg.miaosha.model.vo.MiaoshaMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Message;
@@ -16,8 +17,17 @@ public class RabbitMQSender {
     @Autowired
     private AmqpTemplate amqpTemplate;
 
+
+    public void sendMiaoshaMessage(MiaoshaMessageVO miaoshaMessageVO) {
+        String msg = RedisService.beanToString(miaoshaMessageVO);
+        log.info("send message : " + msg);
+        amqpTemplate.convertAndSend(RabbitmqConfig.MIAOSHA_QUEUE,msg);
+    }
+
+
+
     /**
-     * Direct 模式测试
+     * Direct 模式测试  演示代码
      * @param message
      */
     public void send(Object message){
@@ -27,7 +37,7 @@ public class RabbitMQSender {
     }
 
     /**
-     * Topic模式测试
+     * Topic模式测试   演示代码
      * @param message
      */
     public void sendTopic(Object message){
@@ -38,7 +48,7 @@ public class RabbitMQSender {
     }
 
     /**
-     * Fanout模式测试
+     * Fanout模式测试   演示代码
      * @param message
      */
     public void sendFanout(Object message){
@@ -48,7 +58,7 @@ public class RabbitMQSender {
     }
 
     /**
-     * Header模式测试
+     * Header模式测试   演示代码
      * @param message
      */
     public void sendHeader(Object message){

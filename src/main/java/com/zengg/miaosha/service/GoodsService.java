@@ -34,11 +34,12 @@ public class GoodsService  {
     }
 
     @Transactional
-    public void reduceStock(GoodsVO goodsVO) {
+    public boolean reduceStock(GoodsVO goodsVO) {
         MiaoshaGoods miaoshaGoods = new MiaoshaGoods();
         miaoshaGoods.setGoodsId(goodsVO.getId());
         miaoshaGoods.setStockCount(goodsVO.getStockCount() - 1);
-        goodsDao.reduceStock(miaoshaGoods);
+        int result = goodsDao.reduceStock(miaoshaGoods);
+        return result > 0;
     }
 
     public Map<String,Integer> getStatusAndremainSeconds(GoodsVO goodsVO){

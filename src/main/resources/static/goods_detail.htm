@@ -139,8 +139,9 @@
             },
             success:function (info) {
                 if (info.code == 0){
-                    layer.msg("秒杀成功");
-                    window.location.href="/order_detail.htm?orderId="+info.data.id;
+                    // window.location.href="/order_detail.htm?orderId="+info.data.id;
+                    // 轮询秒杀结果
+                    getMiaoshaResult(goodsId);
                 }else{
                     layer.msg("秒杀失败,successfunction");
                 }
@@ -151,6 +152,39 @@
         })
     }
 
+    function getMiaoshaResult(goodsId) {
+        g_showLoading("排队中");
+        $.ajax({
+            url:"/miaosha/msResult",
+            type:"GET",
+            data:{
+                "goodsId": goodsId
+            },
+            success:function (info) {
+                if (info.code = 0){
+                    var result = info.data;
+                    if(result < 0){
+                        layer.msg("秒杀失败");
+                    }else if (result == 0){ // 继续轮询
+                        setTimeout(function(){
+                            getMiaoshaResult(goodsId);
+                        },500)
+                    }else{
+                        layer.confirm("秒杀成功，是否查看订单？",{btn:["确定","取消"]},
+                            function () {
+                                window.location.href="/order_detail.htm?orderId="+result;
+                            },function () {
+                                layer.closeAll();
+                            }
+                        )
+                    }
+                }
+            },
+            error:function (info) {
+
+            }
+        })
+    }
 </script>
 </body>
 </html>

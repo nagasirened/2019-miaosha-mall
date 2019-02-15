@@ -141,7 +141,7 @@ public class RedisService {
      * @param <T>
      * @return
      */
-    public <T> Long decr(KeyPrefix keyPrefix,String key,long deNumber){
+    public <T> Long decrBy(KeyPrefix keyPrefix,String key,long deNumber){
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
