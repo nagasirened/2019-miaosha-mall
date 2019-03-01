@@ -14,8 +14,11 @@ public class MiaoshaKey extends BasePrefix {
         super(expireSeconds,prefix);
     }
 
-    public static MiaoshaKey isOver = new MiaoshaKey(0,"msOver");
+    public static MiaoshaKey isOver = new MiaoshaKey(0,"msOver ");
 
-    public static MiaoshaKey getRandomPath = new MiaoshaKey(60,"msOver");
+    public static MiaoshaKey getRandomPath = new MiaoshaKey(60,"msOver ");
+
+    public static MiaoshaKey getMiaoshaVerifyCode = new MiaoshaKey(60,"verifyCode ");
+
 
 }

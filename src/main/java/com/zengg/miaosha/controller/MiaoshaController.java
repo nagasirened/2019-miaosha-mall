@@ -22,6 +22,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,10 +162,16 @@ public class MiaoshaController implements InitializingBean{
     @GetMapping(value = "/path")
     @NeedLogin
     public Result<String> getMsPath(Model model,MiaoshaUser miaoshaUser
-            ,@RequestParam("goodsId")long goodsId){
+            ,@RequestParam("goodsId")long goodsId,@RequestParam("verifyCode")int verifyCode){
         if (miaoshaUser == null){
             return Result.error(CodeMsg.SESSION_ERROR);
         }
+        // 图片验证码验证
+        boolean bool = miaoshaService.checkVerifyCode(miaoshaUser, goodsId, verifyCode);
+        if (!bool){
+            return Result.error(CodeMsg.IMAGE_ERROR);
+        }
+
         String randomPath = miaoshaService.createPath(miaoshaUser.getMobile(),goodsId);
         return Result.success(randomPath);
     }
@@ -201,6 +212,35 @@ public class MiaoshaController implements InitializingBean{
 
         return Result.success("Success");
 
+    }
+
+
+    /**
+     * 生成图形验证码
+     * @param model
+     * @param miaoshaUser
+     * @param goodsId
+     * @return
+     */
+    @NeedLogin
+    @RequestMapping(value = "/getVerifyCode")
+    public Result<String> getVerifyCode(Model model, MiaoshaUser miaoshaUser
+            , @RequestParam("goodsId")long goodsId, HttpServletResponse response){
+        if (miaoshaUser == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+
+        BufferedImage image = miaoshaService.createVerifyCode(miaoshaUser,goodsId);
+        try {
+            ServletOutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null;
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.error(CodeMsg.MIAOSHA_FAIL);
+        }
     }
 
 }

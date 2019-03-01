@@ -40,7 +40,12 @@
                     <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
                     <input type="hidden" id="goodsId"  />
                 </form>-->
-                <button class="btn btn-primary btn-block" onclick="getMiaoshaPath()" id="buyButton">立即秒杀</button>
+                <div class="form-inline">
+                    <img id="verifyCodeImg" width="80" height="32" style="display: none" onclick="refreshCode()"/>
+                    <input type="text" id="verifyCode" class="form-control" style="display: none"
+                           onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                    <button class="btn btn-primary" onclick="getMiaoshaPath()" id="buyButton">立即秒杀</button>
+                </div>
                 <input type="hidden" id="goodsId"  />
             </td>
         </tr>
@@ -64,6 +69,9 @@
         getDetail();
     })
     
+    /**
+     * 获取商品信息
+     */
     function getDetail() {
         // common.js中获取url参数
         var goodsId = g_getQueryString("goodsId");
@@ -83,7 +91,9 @@
         })
     }
 
-
+    /**
+     * 渲染页面信息
+     */
     function render(detail) {
         var miaoshaStatus = detail.miaoshaStatus;
         var remainSeconds = detail.remainSeconds;
@@ -105,7 +115,9 @@
         countDown();
     }
 
-
+    /**
+     * 倒计时
+     */
     function countDown(){
         var remainSeconds = $("#remainSeconds").val();
         var timeout;
@@ -123,14 +135,27 @@
                 clearTimeout(timeout);
             }
             $("#miaoshaTip").html("秒杀进行中");
+
+            // 生成验证码
+            $("#verifyCodeImg").attr("src","/miaosha/getVerifyCode?goodsId="+$("#goodsId").val());
+            $("#verifyCodeImg").show();
+            $("#verifyCode").show();
         }else{   //已结束
             $("#buyButton").attr("disabled",true);
             $("#miaoshaTip").html("秒杀已结束");
+            $("#verifyCodeImg").hide();
+            $("#verifyCode").hide();
         }
     }
 
-
+    /**
+     * 获取秒杀路径
+     */
     function getMiaoshaPath(){
+        if( $.trim($("#verifyCode").val() == "")){
+            layer.msg("请输入验证码");
+            return;
+        }
         var goodsId = $("#goodsId").val();
         g_showLoading("加载中...");
         $.ajax({
@@ -142,14 +167,19 @@
             success:function (info) {
                 if(info.code == 0){
                     doMiaosha(info.data);
+                }else if (info.code == 500504){
+                    layer.msg(info.msg);
                 }
             },
             error:function (info) {
-                layer.msg("秒杀失败,errorfunction");
+                layer.msg("秒杀失败,errorfunction" + info.msg);
             }
         })
     }
-    
+
+    /**
+     * 开始秒杀
+     */
     function doMiaosha(path) {
         var goodsId = $("#goodsId").val();
         $.ajax({
@@ -172,6 +202,9 @@
         })
     }
 
+    /**
+     * 进入秒杀队列后轮询秒杀结果
+     */
     function getMiaoshaResult(goodsId) {
         g_showLoading("排队中");
         $.ajax({
@@ -205,6 +238,13 @@
 
             }
         })
+    }
+
+    /**
+     * 刷新验证码事件
+     */
+    function refreshCode() {
+        $("#verifyCodeImg").attr("src","/miaosha/getVerifyCode?goodsId="+$("#goodsId").val() + "&timestamp="+new Date().getTime() );
     }
 </script>
 </body>
