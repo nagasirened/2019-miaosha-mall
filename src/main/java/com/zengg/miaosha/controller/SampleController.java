@@ -12,10 +12,10 @@ import com.zengg.miaosha.service.RedisService;
 import com.zengg.miaosha.service.UserService;
 import com.zengg.miaosha.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -111,6 +111,13 @@ public class SampleController {
         rabbitMQSender.sendHeader(" third test data");
     }
 
+
+    @RequestMapping(value = "matrix/{petid}",method = RequestMethod.GET)
+    @ResponseBody
+    public void matrixVariableTest(@PathVariable String petid, @MatrixVariable int q){
+        System.out.println(petid);
+        System.out.println(q);
+    }
 
 }
 
